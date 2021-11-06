@@ -1,0 +1,21 @@
+MET: None
+MET: tenets of good
+MET: Deity's Domain
+MET: liberator cause
+MET: divine ally (shield)
+MET: devotion spells
+MET: divine ally
+MET: devotion spell (lay on hands)
+NOT MET: divine ally (blade)
+NOT MET: Attack of Opportunity
+NOT MET: divine ally (steed)
+NOT MET: tenets of evil
+NOT MET: Mercy
+NOT MET: devotion spell (touch of corruption)
+NOT MET: paladin cause
+NOT MET: desecrator cause
+NOT MET: Cruelty
+NOT MET: Everstand Stance
+NOT MET: redeemer cause
+NOT MET: tyrant cause
+NOT MET: antipaladin cause

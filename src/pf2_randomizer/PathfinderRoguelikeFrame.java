@@ -44,7 +44,7 @@ public class PathfinderRoguelikeFrame extends JFrame {
         getContentPane().setLayout(new BorderLayout());
         //getContentPane().add(getBottomPanel(), BorderLayout.SOUTH);
         //getContentPane().add(aTextField, BorderLayout.CENTER);
-        setJMenuBar(getMyMenuBar());
+        //setJMenuBar(getMyMenuBar());
         //updateTextField();
         setVisible(true);
         
@@ -60,89 +60,7 @@ public class PathfinderRoguelikeFrame extends JFrame {
         //If ambitious, a seperate pop-up area to enter key details like Ability Scores or skill trainings, for prerequisite purposes
     }
     
-    //INCOMPLETE
-    private void saveToFile() {
-        JFileChooser jfc = new JFileChooser();
-        if(jfc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        if(jfc.getSelectedFile() == null) {
-            return;
-        }
-        File chosenFile = jfc.getSelectedFile();
-
-        if(jfc.getSelectedFile().exists()) {
-            String message = "File " + jfc.getSelectedFile().getName() + " exists.  Overwrite?";
-            if( JOptionPane.showConfirmDialog(this, message) != JOptionPane.YES_OPTION) {
-                return;			
-            }
-        }
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(chosenFile));
-            //ACTUALLY WRITE THE PREREQ DATA
-            writer.flush();  writer.close();
-        } catch(Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not write file", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    //INCOMPLETE
-    private void loadFromFile() {
-        JFileChooser jfc = new JFileChooser();
-        if( jfc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        if( jfc.getSelectedFile() == null) {
-            return;
-        }
-        File chosenFile = jfc.getSelectedFile();
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(chosenFile));
-            //ACTUALLY CHECK AND READ PREREQS
-        } catch(Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not read file", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    //INCOMPLETE
-    private void mergeGroups() {
-        //Actually implement group merging logic
-    }
-    
-    //INCOMPLETE
-    private void importGroup() {
-        JFileChooser jfc = new JFileChooser();
-        if( jfc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        if( jfc.getSelectedFile() == null) {
-            return;
-        }
-        File chosenFile = jfc.getSelectedFile();
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(chosenFile));
-            //ACTUALLY CHECK AND READ IMPORTED GROUP
-        } catch(Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Could not read file", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    //INCOMPLETE
-    private void configureWeights() {
-        //Actually implement weight configuring logic
-    }
-    
-    //INCOMPLETE
-    private void clearPrereqs() {
-        //Actually implement prereq clearing logic
-    }
-    
+    /*
     private JMenuBar getMyMenuBar() {
         JMenuBar jmenuBar = new JMenuBar();
 
@@ -154,40 +72,13 @@ public class PathfinderRoguelikeFrame extends JFrame {
         //fileMenu.add(subMenu);
         //subMenu.add(new JMenuItem("SubItem"));
 
-        JMenuItem saveItem = new JMenuItem("Save");
-        fileMenu.add(saveItem);
-        saveItem.setMnemonic('S');
-
-        saveItem.addActionListener(new ActionListener()
-        {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                        saveToFile();
-                }
-        });
-
-        JMenuItem openItem = new JMenuItem("Open");
-        openItem.setMnemonic('O');
-        fileMenu.add(openItem);
-
-        openItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadFromFile();
-            }
-        });
-
+        JMenu editMenu = new JMenu("Edit");
+        editMenu.setMnemonic('E');
         JMenuItem mergeItem = new JMenuItem("Merge");
-        openItem.setMnemonic('M');
-        fileMenu.add(mergeItem);
+        mergeItem.setMnemonic('M');
+        editMenu.add(mergeItem);
 
-        openItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mergeGroups();
-            }
-        });
+        
         
         JMenuItem importItem = new JMenuItem("Import");
         openItem.setMnemonic('I');
@@ -227,7 +118,7 @@ public class PathfinderRoguelikeFrame extends JFrame {
         });
 
         return jmenuBar;
-    }
+    }*/
     
     //Organize panels (regions of the display) here
     

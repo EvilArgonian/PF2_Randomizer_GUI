@@ -25,6 +25,9 @@ public class Group {
 
     public Group(ArrayList<Feat> feats, int[] weights) {
         this.feats = feats;
+        if (weights.length != 4) {
+            throw new IllegalArgumentException(weights.length + " weights provided, when 4 were expected.");
+        }
         for (int i = 0; i < weights.length; i++) {
             if (weights[i] < 0) {
                 weights[i] = 0;
@@ -86,6 +89,19 @@ public class Group {
 
     public ArrayList<Feat> getFeats() {
         return feats;
+    }
+    
+    public void setWeights(int[] weights) {
+        if (weights.length != 4) {
+            throw new IllegalArgumentException(weights.length + " weights provided, when 4 were expected.");
+        }
+        for (int i = 0; i < weights.length; i++) {
+            if (weights[i] < 0) {
+                weights[i] = 0;
+            }
+        }
+        this.weights = weights;
+        this.totalWeighting = getTotalWeighting();
     }
     
     public Group merge(Group otherGroup) {
