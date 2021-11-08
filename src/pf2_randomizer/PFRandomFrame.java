@@ -28,14 +28,14 @@ import javax.swing.JOptionPane;
  */
 public class PFRandomFrame extends javax.swing.JFrame {
     
-    //EVERYTHING STILL NEEDS TO BE MADE THREAD SAFE
+    //EVERYTHING STILL NEEDS TO BE MADE THREAD SAFE (?)
     private HashMap<String, Group> groups;
     private HashMap<String, List<String>> dropdowns;
     
     private List<String> prereqsMet;
     private List<String> prereqsNotMet;
     private String currentPrereqChecking = null;
-    private final int CHECK_LIMIT = 200; //Checks allowed before giving up on generation
+    private final int CHECK_LIMIT = 300; //Checks allowed before giving up on generation
 
     /**
      * Creates new form PFRandomFrame
@@ -48,7 +48,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
         //Establish Supercategories for first dropdown
         for (String supercategory : PF2DataManager.SUPERCATEGORIES) {
             dropdowns.put(supercategory, new ArrayList<>());
-            System.out.println("Test Area 1: Supercategory " + supercategory);
         }
         List<String> ancCheck = Arrays.asList(PF2DataManager.ANCESTRIES);
         List<String> classCheck = Arrays.asList(PF2DataManager.CLASSES);
@@ -69,7 +68,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
             } else if (classCheck.contains(key)) {
                 dropdowns.get("Class").add(key); 
             } else if (versCheck.contains(key)) {
-                dropdowns.get("Ancestry").add(key); //There's an argument for these to get their own supercategory, but this will do.
+                dropdowns.get("Ancestry").add(key + " (Feats)"); //There's an argument for these to get their own supercategory, but this will do.
             } else if (key.equals("Ancestries") || key.equals("Backgrounds") || key.equals("Classes") || key.equals("Dedications")) {
                 dropdowns.get("Other").add(key); 
                 /*Note that ancestries and classes are in this list to generate an 
@@ -421,9 +420,26 @@ public class PFRandomFrame extends javax.swing.JFrame {
                         groupKey = jComboBox2.getSelectedItem().toString().replace(" (Heritages)", "_Heritages");
                     } else {
                         if (Integer.parseInt(minLevelField.getText()) == Integer.parseInt(maxLevelField.getText())) {
-                            groupKey = jComboBox2.getSelectedItem() + "_Feats_" + minLevelField.getText();
+                            groupKey = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "_Feats_") + minLevelField.getText();
                         } else {
-                            groupKey = jComboBox2.getSelectedItem() + "_Feats_" + minLevelField.getText() + "-" + maxLevelField.getText();
+                            String keyBase = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "_Feats_");
+                            int min = Integer.parseInt(minLevelField.getText());
+                            int max = Integer.parseInt(maxLevelField.getText());
+                            //Logic for merging groups here
+                            //Get minimum actual existing level
+                            for (; min<21; min++) {
+                                if (groups.containsKey(keyBase + min)) {
+                                    break;
+                                }
+                            }
+                            //Get maximum actual existing level
+                            for (; max>0; max--) {
+                                if (groups.containsKey(keyBase + max)) {
+                                    break;
+                                }
+                            }
+                            groupKey = keyBase + min + "-" + max;
+                            groups.putIfAbsent(groupKey, PF2DataManager.mergeAcrossLevels(groups, keyBase, min, max));
                         }
                     }
                 } else {
@@ -444,6 +460,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
 
                 Feat selected;
                 int trials = 0;
+                boolean hasNone = false;
                 try {
                     for (int i = 0; i < numToGenerate; i++) {
                         prereqsInvalid = true;
@@ -452,6 +469,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
                             selected = selectFromThisGroup.random();
                             if (selected == null) {
                                 System.out.println("Group had no feats to select from!");
+                                hasNone = true;
                                 i = numToGenerate;
                                 break;
                             }
@@ -482,10 +500,15 @@ public class PFRandomFrame extends javax.swing.JFrame {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println("Some error occurred... \n" + e);
+                    System.out.println("Some error occurred... \n");
+                    e.printStackTrace(System.out);
                 }
                 //Display results
                 StringBuilder displayMe = new StringBuilder("Your options are: \n");
+                if (hasNone) {
+                    displayMe.append("No feats were found for this group/level range!\n");
+                    ;
+                }
                 for (Feat result : selection) {
                     displayMe.append(result.toString() + "\n");
                 }

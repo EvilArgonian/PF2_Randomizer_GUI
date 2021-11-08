@@ -49,7 +49,7 @@ public class PF2DataManager {
             genGroups.put(child.getName().split(".csv")[0], readInOneCSV(child));
         }
 
-        genGroups.putAll(generateLevelMerges(genGroups)); 
+        //genGroups.putAll(generateLevelMerges(genGroups)); 
         return genGroups;
     }
      
@@ -62,10 +62,8 @@ public class PF2DataManager {
             lines.forEachOrdered(line -> feats.add(readCsvLine(line)));
         } catch (Exception e){
             if (!(e instanceof ArrayIndexOutOfBoundsException)) {
-                System.out.println(e);
-                for (StackTraceElement trace : e.getStackTrace()) {
-                    System.out.println(trace.toString());
-                }
+                System.out.println("Error in File: " + csvFile.getName());
+                e.printStackTrace(System.out);
             }
         }
         return new Group(feats);
@@ -75,7 +73,7 @@ public class PF2DataManager {
         String[] parts = line.split(",");
         ArrayList<String> prereqs = new ArrayList<>();
         for (String prereq : parts[3].split(";")) {
-            prereqs.add(prereq);
+            prereqs.add(prereq.trim());
         }
         return new Feat(parts[0], parts[1], parts[2], prereqs);
     }
@@ -86,6 +84,7 @@ public class PF2DataManager {
       * @param initMap The map of originally read feat groups
       * @return 
       */
+    /*
      private static HashMap<String, Group> generateLevelMerges(HashMap<String, Group> initMap) {
         Group group;
         HashMap<String, Group> groupsUpdate = new HashMap<>();
@@ -110,5 +109,16 @@ public class PF2DataManager {
             }
         }
         return groupsUpdate;
+     }
+    */
+    
+    public static Group mergeAcrossLevels(HashMap<String, Group> initMap, String keyBase, int min, int max) {
+        Group group = new Group(new ArrayList<>());
+        for (int level = min; level <= max; level++) {
+            if (initMap.containsKey(keyBase + level)) {
+                group = group.merge(initMap.get(keyBase + level));
+            }
+        }
+        return group;
      }
 }

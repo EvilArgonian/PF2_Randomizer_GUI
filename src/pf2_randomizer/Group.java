@@ -6,6 +6,7 @@
 package pf2_randomizer;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -13,17 +14,17 @@ import java.util.Random;
  * @author pmele
  */
 public class Group {
-    private ArrayList<Feat> feats;
+    private List<Feat> feats;
     private int[] weights;
     private int totalWeighting;
 
-    public Group(ArrayList<Feat> feats) {
+    public Group(List<Feat> feats) {
         this.feats = feats;
         this.weights = new int[] {3, 2, 1, 0};
         this.totalWeighting = getTotalWeighting();
     }
 
-    public Group(ArrayList<Feat> feats, int[] weights) {
+    public Group(List<Feat> feats, int[] weights) {
         this.feats = feats;
         if (weights.length != 4) {
             throw new IllegalArgumentException(weights.length + " weights provided, when 4 were expected.");
@@ -38,7 +39,7 @@ public class Group {
     }
     
     public Feat random() {
-        if (feats.size() == 0) {
+        if (feats.isEmpty()) {
             return null;
         }
         Random rand = new Random();
@@ -87,7 +88,7 @@ public class Group {
         return sum;
     }
 
-    public ArrayList<Feat> getFeats() {
+    public List<Feat> getFeats() {
         return feats;
     }
     
