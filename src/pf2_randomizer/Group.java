@@ -6,6 +6,7 @@
 package pf2_randomizer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -105,12 +106,22 @@ public class Group {
         this.totalWeighting = getTotalWeighting();
     }
     
+    public int[] getWeights() {
+        return weights;
+    }
+    
     public Group merge(Group otherGroup) {
+        return merge(otherGroup, this.weights);
+    }
+    
+    public Group merge(Group otherGroup, int[] weights) {
         ArrayList<Feat> mergedFeats = new ArrayList<>();
         mergedFeats.addAll(feats);
         mergedFeats.addAll(otherGroup.getFeats());
-        return new Group(mergedFeats);
+        return new Group(mergedFeats, weights);
     }
     
-    
+    public String toString() {
+        return Arrays.toString(weights);
+    }
 }

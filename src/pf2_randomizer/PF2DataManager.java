@@ -39,24 +39,24 @@ public class PF2DataManager {
     //The Elder Scrolls Homebrew
     public static final String[] TES_ANCESTRIES = {"Altmer", "Argonian", "Bosmer", "Breton", "Dunmer", "Imperial", "Khajiit", "Nord", "Orc", "Redguard"};
     
-     public static HashMap<String, Group> readInGroupCSVs() {
+     public static HashMap<String, Group> readInGroupCSVs(int[] weights) {
         //Set up all the groups here
         //File dir = new File("C:\\Users\\pmele\\Documents\\NetBeansProjects\\PF2_Randomizer_GUI\\Feats");
         File dir = new File(System.getProperty("user.dir") + "\\Feats"); //Verify that this actually reaches the right folder!
         File[] directoryListing = dir.listFiles();
         HashMap<String, Group> genGroups = new HashMap<>();
         for (File child : directoryListing) {
-            genGroups.put(child.getName().split(".csv")[0], readInOneCSV(child));
+            genGroups.put(child.getName().split(".csv")[0], readInOneCSV(child, weights));
         }
 
         //genGroups.putAll(generateLevelMerges(genGroups)); 
         return genGroups;
     }
      
-    public static Group readInOneCSV(File csvFile) {
+    public static Group readInOneCSV(File csvFile, int[] weights) {
         ArrayList<Feat> feats = new ArrayList<>();
         if (csvFile.length() == 0) {
-            return new Group(feats);
+            return new Group(feats, weights);
         }
         try (Stream<String> lines = Files.lines(Paths.get(csvFile.getPath()), Charset.defaultCharset())) {
             lines.forEachOrdered(line -> feats.add(readCsvLine(line)));
@@ -66,7 +66,7 @@ public class PF2DataManager {
                 e.printStackTrace(System.out);
             }
         }
-        return new Group(feats);
+        return new Group(feats, weights);
     } 
      
     private static Feat readCsvLine(String line) {
@@ -112,8 +112,18 @@ public class PF2DataManager {
      }
     */
     
-    public static Group mergeAcrossLevels(HashMap<String, Group> initMap, String keyBase, int min, int max) {
-        Group group = new Group(new ArrayList<>());
+    /**
+     * Given a particular category of Feats indicated by the front portion of its key in initMap and a minimum and maximum level, 
+     * returns a group consisting of all Feats of that category between the given levels.
+     * @param initMap
+     * @param keyBase
+     * @param weights
+     * @param min
+     * @param max
+     * @return 
+     */
+    public static Group mergeAcrossLevels(HashMap<String, Group> initMap, String keyBase, int[] weights, int min, int max) {
+        Group group = new Group(new ArrayList<>(), weights);
         for (int level = min; level <= max; level++) {
             if (initMap.containsKey(keyBase + level)) {
                 group = group.merge(initMap.get(keyBase + level));

@@ -36,6 +36,8 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private List<String> prereqsNotMet;
     private String currentPrereqChecking = null;
     private final int CHECK_LIMIT = 300; //Checks allowed before giving up on generation
+    
+    private int[] weights = new int[]{3, 2, 1, 0};
 
     /**
      * Creates new form PFRandomFrame
@@ -43,7 +45,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
     public PFRandomFrame(String str) {
         //super(str);
         //Load all data
-        groups = PF2DataManager.readInGroupCSVs();
+        groups = PF2DataManager.readInGroupCSVs(weights);
         dropdowns = new HashMap<>();
         //Establish Supercategories for first dropdown
         for (String supercategory : PF2DataManager.SUPERCATEGORIES) {
@@ -65,12 +67,16 @@ public class PFRandomFrame extends javax.swing.JFrame {
             if (ancCheck.contains(key)) {
                 dropdowns.get("Ancestry").add(key + " (Heritages)");
                 dropdowns.get("Ancestry").add(key + " (Feats)");
+                System.out.println("RECOGNIZED ANCESTRY DATA FOR: " + key);
             } else if (classCheck.contains(key)) {
                 dropdowns.get("Class").add(key); 
+                System.out.println("RECOGNIZED CLASS DATA FOR: " + key);
             } else if (versCheck.contains(key)) {
                 dropdowns.get("Ancestry").add(key + " (Feats)"); //There's an argument for these to get their own supercategory, but this will do.
+                System.out.println("RECOGNIZED VERSATILE HERITAGE DATA FOR: " + key);
             } else if (key.equals("Ancestries") || key.equals("Backgrounds") || key.equals("Classes") || key.equals("Dedications")) {
                 dropdowns.get("Other").add(key); 
+                System.out.println("RECOGNIZED MISC. DATA FOR: " + key);
                 /*Note that ancestries and classes are in this list to generate an 
                 ancestry or class itself, as opposed to their use as categories 
                 from which to generate an ancestry-specific or class-specific feat. */
@@ -80,6 +86,10 @@ public class PFRandomFrame extends javax.swing.JFrame {
         
         //Initialize Components
         initComponents();
+        //Fix where windows appear
+        this.setLocationRelativeTo(null);
+        configureWeightsDialog.setLocationRelativeTo(null);
+        
         //Establish Menus
         //File Menu: Save and Open
         fileMenu.setMnemonic('F');
@@ -113,18 +123,22 @@ public class PFRandomFrame extends javax.swing.JFrame {
             }
         });
         JMenuItem configureItem = new JMenuItem("Configure Weights");
-        mergeItem.setMnemonic('W');
+        configureItem.setMnemonic('W');
         editMenu.add(configureItem);
-        mergeItem.addActionListener(new ActionListener() {
+        configureItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                configureWeights();
+                configCommon.setText(Integer.toString(weights[0]));
+                configUncommon.setText(Integer.toString(weights[1]));
+                configRare.setText(Integer.toString(weights[2]));
+                configUnique.setText(Integer.toString(weights[3]));
+                configureWeightsDialog.setVisible(true);
             }
         });
         JMenuItem clearItem = new JMenuItem("Clear Prerequisites");
-        mergeItem.setMnemonic('C');
+        clearItem.setMnemonic('C');
         editMenu.add(clearItem);
-        mergeItem.addActionListener(new ActionListener() {
+        clearItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 clearPrereqs();
@@ -162,6 +176,17 @@ public class PFRandomFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        configureWeightsDialog = new javax.swing.JDialog();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        configCommon = new javax.swing.JFormattedTextField();
+        configUncommon = new javax.swing.JFormattedTextField();
+        configRare = new javax.swing.JFormattedTextField();
+        configUnique = new javax.swing.JFormattedTextField();
+        configCancelButton = new javax.swing.JButton();
+        configSetButton = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox();
         jComboBox2 = new javax.swing.JComboBox();
         minLevelField = new javax.swing.JFormattedTextField();
@@ -187,6 +212,123 @@ public class PFRandomFrame extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         editMenu = new javax.swing.JMenu();
+
+        configureWeightsDialog.setTitle("Configure Weights");
+        configureWeightsDialog.setPreferredSize(new java.awt.Dimension(250, 210));
+        configureWeightsDialog.setResizable(false);
+        configureWeightsDialog.setSize(new java.awt.Dimension(250, 210));
+        configureWeightsDialog.setType(java.awt.Window.Type.POPUP);
+
+        jLabel2.setFont(jLabel2.getFont().deriveFont(jLabel2.getFont().getSize()+7f));
+        jLabel2.setText("Common");
+
+        jLabel3.setFont(jLabel3.getFont().deriveFont(jLabel3.getFont().getSize()+7f));
+        jLabel3.setText("Uncommon");
+
+        jLabel4.setFont(jLabel4.getFont().deriveFont(jLabel4.getFont().getSize()+7f));
+        jLabel4.setText("Rare");
+
+        jLabel5.setFont(jLabel5.getFont().deriveFont(jLabel5.getFont().getSize()+7f));
+        jLabel5.setText("Unique");
+
+        configCommon.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
+        configCommon.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        configCommon.setText("3");
+        configCommon.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        configCommon.setFocusLostBehavior(javax.swing.JFormattedTextField.COMMIT);
+        configCommon.setFont(configCommon.getFont().deriveFont(configCommon.getFont().getSize()+5f));
+
+        configUncommon.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
+        configUncommon.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        configUncommon.setText("2");
+        configUncommon.setFocusLostBehavior(javax.swing.JFormattedTextField.COMMIT);
+        configUncommon.setFont(configUncommon.getFont().deriveFont(configUncommon.getFont().getSize()+5f));
+
+        configRare.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
+        configRare.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        configRare.setText("1");
+        configRare.setFocusLostBehavior(javax.swing.JFormattedTextField.COMMIT);
+        configRare.setFont(configRare.getFont().deriveFont(configRare.getFont().getSize()+5f));
+
+        configUnique.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(java.text.NumberFormat.getIntegerInstance())));
+        configUnique.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        configUnique.setText("0");
+        configUnique.setFocusLostBehavior(javax.swing.JFormattedTextField.COMMIT);
+        configUnique.setFont(configUnique.getFont().deriveFont(configUnique.getFont().getSize()+5f));
+
+        configCancelButton.setFont(configCancelButton.getFont().deriveFont(configCancelButton.getFont().getSize()+7f));
+        configCancelButton.setText("Cancel");
+        configCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                configCancelButtonActionPerformed(evt);
+            }
+        });
+
+        configSetButton.setFont(configSetButton.getFont().deriveFont(configSetButton.getFont().getSize()+7f));
+        configSetButton.setText("Set");
+        configSetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                configSetButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout configureWeightsDialogLayout = new javax.swing.GroupLayout(configureWeightsDialog.getContentPane());
+        configureWeightsDialog.getContentPane().setLayout(configureWeightsDialogLayout);
+        configureWeightsDialogLayout.setHorizontalGroup(
+            configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(configCommon, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(configUnique, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(configRare, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                        .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(configCancelButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                                .addComponent(configUncommon, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                                .addGap(26, 26, 26)
+                                .addComponent(configSetButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                .addContainerGap())
+        );
+        configureWeightsDialogLayout.setVerticalGroup(
+            configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(configureWeightsDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(configCommon, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(configUncommon, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(configRare, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(configUnique, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(configureWeightsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(configCancelButton)
+                    .addComponent(configSetButton))
+                .addContainerGap())
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -284,6 +426,11 @@ public class PFRandomFrame extends javax.swing.JFrame {
         jMenuBar1.add(fileMenu);
 
         editMenu.setText("Edit");
+        editMenu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                editMenuMouseEntered(evt);
+            }
+        });
         jMenuBar1.add(editMenu);
 
         setJMenuBar(jMenuBar1);
@@ -297,7 +444,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -403,6 +550,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         Runnable generationThread = new Runnable() {
+            @Override
             public void run() {
                 //Turn off all buttons until generation is complete
                 jComboBox1.setEnabled(false);
@@ -413,59 +561,79 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 generateButton.setEnabled(false);
                 
                 String groupKey;
-                if (jComboBox1.getSelectedItem().toString().equals("Ancestry") ||
-                    jComboBox1.getSelectedItem().toString().equals("Class") ||
-                    jComboBox1.getSelectedItem().toString().equals("Archetypes")) {
-                    if (jComboBox2.getSelectedItem().toString().contains("(Heritages)")) {
-                        groupKey = jComboBox2.getSelectedItem().toString().replace(" (Heritages)", "_Heritages");
-                    } else {
-                        if (Integer.parseInt(minLevelField.getText()) == Integer.parseInt(maxLevelField.getText())) {
-                            groupKey = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "_Feats_") + minLevelField.getText();
+                ArrayList<Feat> selection = new ArrayList<>();
+                boolean hasNone = false;
+                StringBuilder displayMe = new StringBuilder();
+                try {
+                    if (jComboBox1.getSelectedItem().toString().equals("Ancestry") ||
+                        jComboBox1.getSelectedItem().toString().equals("Class") ||
+                        jComboBox1.getSelectedItem().toString().equals("Archetypes")) {
+                        if (jComboBox2.getSelectedItem().toString().contains("(Heritages)")) {
+                            groupKey = jComboBox2.getSelectedItem().toString().replace(" (Heritages)", "_Heritages");
                         } else {
-                            String keyBase = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "_Feats_");
                             int min = Integer.parseInt(minLevelField.getText());
                             int max = Integer.parseInt(maxLevelField.getText());
-                            //Logic for merging groups here
-                            //Get minimum actual existing level
-                            for (; min<21; min++) {
-                                if (groups.containsKey(keyBase + min)) {
-                                    break;
-                                }
-                            }
-                            //Get maximum actual existing level
-                            for (; max>0; max--) {
-                                if (groups.containsKey(keyBase + max)) {
-                                    break;
-                                }
-                            }
-                            groupKey = keyBase + min + "-" + max;
-                            groups.putIfAbsent(groupKey, PF2DataManager.mergeAcrossLevels(groups, keyBase, min, max));
-                        }
-                    }
-                } else {
-                    groupKey = jComboBox2.getSelectedItem().toString();
-                }
-                Group selectFromThisGroup = groups.get(groupKey);
-                System.out.println("GROUP: " + groupKey);
-                int numToGenerate;
-                try {
-                    numToGenerate = Integer.parseInt(numRandomField.getText());
-                } catch (NumberFormatException e) {
-                    //Default to 3
-                    numToGenerate = 3;
-                }
-                ArrayList<Feat> selection = new ArrayList<>();
-                boolean prereqsInvalid = false;
-                String meetsReq = "";
+                            if (min == max) {
+                                groupKey = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "") + "_Feats_" + min;
+                            } else {
+                                String keyBase = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "") + "_Feats_";
 
-                Feat selected;
-                int trials = 0;
-                boolean hasNone = false;
-                try {
+                                //Logic for merging groups here
+                                //Get minimum actual existing level
+                                if (min >= 21) {
+                                    //System.out.println("Minimum level must be no more than 20 (Given as " + min + ").");
+                                    throw new IllegalArgumentException("Minimum level must be no more than 20 (Given as " + min + ").");
+                                }
+                                if (max <= 0) {
+                                    //System.out.println("Maximum level must be no less than 1 (Given as " + max + ").");
+                                    throw new IllegalArgumentException("Maximum level must be no less than 1 (Given as " + max + ").");
+                                }
+                                if (min > max) {
+                                    //System.out.println("Minimum level must be no more than the maximum!");
+                                    throw new IllegalArgumentException("Minimum level must be no less than the maximum!");
+                                }
+                                for (; min < 21 || min < max; min++) {
+                                    if (groups.containsKey(keyBase + min)) {
+                                        break;
+                                    }
+                                }
+                                //Get maximum actual existing level
+                                for (; max > 0 || max > min; max--) {
+                                    if (groups.containsKey(keyBase + max)) {
+                                        break;
+                                    }
+                                }
+                                if (min == max) {
+                                    groupKey = keyBase + min;
+                                } else {
+                                    groupKey = keyBase + min + "-" + max;
+                                    groups.putIfAbsent(groupKey, PF2DataManager.mergeAcrossLevels(groups, keyBase, weights, min, max));
+                                }
+                            }
+                        }
+                    } else {
+                        groupKey = jComboBox2.getSelectedItem().toString();
+                    }
+                    
+                    Group selectFromThisGroup = groups.get(groupKey);
+                    System.out.println("GROUP: " + groupKey);
+                    int numToGenerate;
+                    try {
+                        numToGenerate = Integer.parseInt(numRandomField.getText());
+                    } catch (NumberFormatException e) {
+                        //Default to 3
+                        numToGenerate = 3;
+                    }
+                    boolean prereqsInvalid = false;
+                    String meetsReq = "";
+
+                    Feat selected;
+                    int trials = 0;
                     for (int i = 0; i < numToGenerate; i++) {
                         prereqsInvalid = true;
                         selected = null;
                         while (prereqsInvalid || selection.contains(selected)) {
+                            System.out.println("Weights used: " + Arrays.toString(selectFromThisGroup.getWeights()));
                             selected = selectFromThisGroup.random();
                             if (selected == null) {
                                 System.out.println("Group had no feats to select from!");
@@ -500,17 +668,19 @@ public class PFRandomFrame extends javax.swing.JFrame {
                         }
                     }
                 } catch (Exception e) {
+                    hasNone = true;
+                    displayMe.append(e.getMessage()).append("\n");
                     System.out.println("Some error occurred... \n");
                     e.printStackTrace(System.out);
                 }
                 //Display results
-                StringBuilder displayMe = new StringBuilder("Your options are: \n");
                 if (hasNone) {
                     displayMe.append("No feats were found for this group/level range!\n");
-                    ;
+                } else {
+                    displayMe.append("Your options are: \n");
                 }
                 for (Feat result : selection) {
-                    displayMe.append(result.toString() + "\n");
+                    displayMe.append(result.toString()).append("\n");
                 }
                 resultsDisplay.setText(displayMe.toString());
                 
@@ -528,7 +698,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void yesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yesButtonActionPerformed
-        synchronized(currentPrereqChecking) {
+        synchronized(this) {
             if (currentPrereqChecking != null) {
                 prereqsMet.add(currentPrereqChecking);
                 currentPrereqChecking = null;
@@ -537,13 +707,50 @@ public class PFRandomFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_yesButtonActionPerformed
 
     private void noButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noButtonActionPerformed
-        synchronized(currentPrereqChecking) {
+        synchronized(this) {
             if (currentPrereqChecking != null) {
                 prereqsNotMet.add(currentPrereqChecking);
                 currentPrereqChecking = null;
             }
         }
     }//GEN-LAST:event_noButtonActionPerformed
+
+    private void configCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configCancelButtonActionPerformed
+        configCommon.setText(Integer.toString(weights[0]));
+        configUncommon.setText(Integer.toString(weights[1]));
+        configRare.setText(Integer.toString(weights[2]));
+        configUnique.setText(Integer.toString(weights[3]));
+        configureWeightsDialog.setVisible(false);
+    }//GEN-LAST:event_configCancelButtonActionPerformed
+
+    private void configSetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configSetButtonActionPerformed
+        generateButton.setEnabled(false);
+        synchronized (this) {
+            try {
+                weights[0] = Integer.parseInt(configCommon.getText());
+                weights[1] = Integer.parseInt(configUncommon.getText());
+                weights[2] = Integer.parseInt(configRare.getText());
+                weights[3] = Integer.parseInt(configUnique.getText());
+                System.out.println("Weights read: " + Arrays.toString(weights));
+            } catch (Exception e) {
+                System.out.println("Invalid weights entered; reverting to defaults.");
+                weights[0] = 3;
+                weights[1] = 2;
+                weights[2] = 1;
+                weights[3] = 0;
+            }
+        }
+        System.out.println(groups.get("Aasimar_Feats_3-17"));
+        for (Group group : groups.values()) {
+            group.setWeights(weights);
+        }
+        generateButton.setEnabled(true);
+        configureWeightsDialog.setVisible(false);
+    }//GEN-LAST:event_configSetButtonActionPerformed
+
+    private void editMenuMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editMenuMouseEntered
+        this.validate();
+    }//GEN-LAST:event_editMenuMouseEntered
 
     private void promptForPrereq(String req) {
         currentPrereqChecking = req;
@@ -665,10 +872,11 @@ public class PFRandomFrame extends javax.swing.JFrame {
             BufferedReader reader = new BufferedReader(new FileReader(chosenFile));
             String nextLine = reader.readLine();
             while (nextLine != null) {
+                System.out.println("Reading line: " + nextLine);
                 if (nextLine.startsWith("MET: ")) {
-                    prereqsMet.add(nextLine.split("MET: ")[0]);
+                    prereqsMet.add(nextLine.replace("MET: ", ""));
                 } else if (nextLine.startsWith("NOT MET: ")) {
-                    prereqsMet.add(nextLine.split("NOT MET: ")[0]);
+                    prereqsNotMet.add(nextLine.replace("NOT MET: ", ""));
                 }
                 nextLine = reader.readLine();
             }
@@ -682,6 +890,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
     //INCOMPLETE
     private void mergeGroups() {
         //Actually implement group merging logic
+        //Should have a popup window for selecting two groups
     }
     
     /**
@@ -689,6 +898,8 @@ public class PFRandomFrame extends javax.swing.JFrame {
      * folder, to form a custom group.
      */
     private void importGroup() {
+        //Possibly deserves its own popup window for supercategory selection?
+        
         JFileChooser jfc = new JFileChooser();
         if( jfc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
@@ -699,7 +910,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
         File chosenFile = jfc.getSelectedFile();
 
         try {
-            Group importedGroup = PF2DataManager.readInOneCSV(chosenFile);
+            Group importedGroup = PF2DataManager.readInOneCSV(chosenFile, weights);
             String key = chosenFile.getName().split(".csv")[0];
             if (groups.containsKey(key) || dropdowns.containsKey(key)) {
                 throw new Exception("Key appeared to already be in use!");
@@ -719,11 +930,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
         }
     }
     
-    //INCOMPLETE
-    private void configureWeights() {
-        //Actually implement weight configuring logic
-    }
-    
     /**
      * Clears the stored prerequisite memory.
      */
@@ -731,6 +937,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
         prereqsMet.clear();
         prereqsMet.add("None");
         prereqsNotMet.clear();
+        updatePrereqDisplay();
     }
     
     /**
@@ -769,12 +976,23 @@ public class PFRandomFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton configCancelButton;
+    private javax.swing.JFormattedTextField configCommon;
+    private javax.swing.JFormattedTextField configRare;
+    private javax.swing.JButton configSetButton;
+    private javax.swing.JFormattedTextField configUncommon;
+    private javax.swing.JFormattedTextField configUnique;
+    private javax.swing.JDialog configureWeightsDialog;
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JButton generateButton;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
