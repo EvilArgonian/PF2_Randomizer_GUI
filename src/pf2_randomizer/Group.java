@@ -121,6 +121,7 @@ public class Group {
         return new Group(mergedFeats, weights);
     }
     
+    @Override
     public String toString() {
         return Arrays.toString(weights);
     }

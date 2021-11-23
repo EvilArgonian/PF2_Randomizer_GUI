@@ -49,7 +49,6 @@ public class PF2DataManager {
             genGroups.put(child.getName().split(".csv")[0], readInOneCSV(child, weights));
         }
 
-        //genGroups.putAll(generateLevelMerges(genGroups)); 
         return genGroups;
     }
      
@@ -77,40 +76,6 @@ public class PF2DataManager {
         }
         return new Feat(parts[0], parts[1], parts[2], prereqs);
     }
-     
-     /**
-      * Produces a map of feat groups containing feats from across all normally needed level ranges.
-      * These level ranges are 1 to X, for each level X for which feats exist.
-      * @param initMap The map of originally read feat groups
-      * @return 
-      */
-    /*
-     private static HashMap<String, Group> generateLevelMerges(HashMap<String, Group> initMap) {
-        Group group;
-        HashMap<String, Group> groupsUpdate = new HashMap<>();
-        for (String key : initMap.keySet()) {
-            group = initMap.get(key);
-            if (key.endsWith("1")) {
-                for (int level = 2; level <= 20; level++) {
-                    for (String key2 : initMap.keySet()) {
-                        try {
-                            if (key2.split("_")[0].equals(key.split("_")[0]) && key2.split("_")[1].equals("Feats") && Integer.parseInt(key2.split("_")[2]) == level) {
-                                group = group.merge(initMap.get(key2));
-                                groupsUpdate.put(key + "-" + key2.split("_")[2], group);
-                                //Testing line - Comment out if unused
-                                //System.out.println(key + "-" + key2.split("_")[2]);
-                                break;
-                            }
-                        } catch (Exception e) {
-                            System.out.println(e);
-                        }
-                    }
-                }
-            }
-        }
-        return groupsUpdate;
-     }
-    */
     
     /**
      * Given a particular category of Feats indicated by the front portion of its key in initMap and a minimum and maximum level, 

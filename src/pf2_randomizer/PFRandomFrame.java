@@ -740,7 +740,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 weights[3] = 0;
             }
         }
-        System.out.println(groups.get("Aasimar_Feats_3-17"));
         for (Group group : groups.values()) {
             group.setWeights(weights);
         }
