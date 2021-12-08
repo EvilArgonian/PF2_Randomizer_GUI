@@ -89,6 +89,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
         //Fix where windows appear
         this.setLocationRelativeTo(null);
         configureWeightsDialog.setLocationRelativeTo(null);
+        mergeGroupsDialog.setLocationRelativeTo(null);
         
         //Establish Menus
         //File Menu: Save and Open
@@ -115,13 +116,15 @@ public class PFRandomFrame extends javax.swing.JFrame {
         editMenu.setMnemonic('E');
         JMenuItem mergeItem = new JMenuItem("Merge");
         mergeItem.setMnemonic('M');
-        editMenu.add(mergeItem);
         mergeItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mergeGroups();
+                updatePairedDropdowns(mergeGroupCategory1, mergeGroupSelect1);
+                updatePairedDropdowns(mergeGroupCategory2, mergeGroupSelect2);
+                mergeGroupsDialog.setVisible(true);
             }
         });
+        editMenu.add(mergeItem);
         JMenuItem configureItem = new JMenuItem("Configure Weights");
         configureItem.setMnemonic('W');
         editMenu.add(configureItem);
@@ -145,18 +148,9 @@ public class PFRandomFrame extends javax.swing.JFrame {
             }
         });
         
-        
-        
         //Initial setup of dropdowns
-        jComboBox2.removeAllItems();
-        List<String> sortMe = new ArrayList<>();
-        for (String item : dropdowns.get(String.valueOf(jComboBox1.getSelectedItem()))) {
-            sortMe.add(item);
-        }
-        Collections.sort(sortMe);
-        for (String item : sortMe) {
-            jComboBox2.addItem(item);
-        }
+        refreshSelectionDropdown();
+        
         //Initial setup of prereq checks
         prereqsMet = new ArrayList<>();
         prereqsNotMet = new ArrayList<>();
@@ -165,6 +159,10 @@ public class PFRandomFrame extends javax.swing.JFrame {
         //Fixes a display issue where dropdowns would be covered by label components
         jComboBox1.setLightWeightPopupEnabled(false);
         jComboBox2.setLightWeightPopupEnabled(false);
+        mergeGroupCategory1.setLightWeightPopupEnabled(false);
+        mergeGroupSelect1.setLightWeightPopupEnabled(false);
+        mergeGroupCategory2.setLightWeightPopupEnabled(false);
+        mergeGroupSelect2.setLightWeightPopupEnabled(false);
     }
 
     /**
@@ -187,6 +185,25 @@ public class PFRandomFrame extends javax.swing.JFrame {
         configUnique = new javax.swing.JFormattedTextField();
         configCancelButton = new javax.swing.JButton();
         configSetButton = new javax.swing.JButton();
+        mergeGroupsDialog = new javax.swing.JDialog();
+        mergeGroupCategory1 = new javax.swing.JComboBox();
+        mergeGroupSelect1 = new javax.swing.JComboBox();
+        mergeMinLevelField1 = new javax.swing.JFormattedTextField();
+        mergeMaxLevelField1 = new javax.swing.JFormattedTextField();
+        label5 = new java.awt.Label();
+        label6 = new java.awt.Label();
+        mergeGroupCategory2 = new javax.swing.JComboBox();
+        mergeGroupSelect2 = new javax.swing.JComboBox();
+        mergeMinLevelField2 = new javax.swing.JFormattedTextField();
+        mergeMaxLevelField2 = new javax.swing.JFormattedTextField();
+        label7 = new java.awt.Label();
+        label8 = new java.awt.Label();
+        mergeNameField = new javax.swing.JTextField();
+        label9 = new java.awt.Label();
+        label10 = new java.awt.Label();
+        label11 = new java.awt.Label();
+        label12 = new java.awt.Label();
+        mergeButton = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox();
         jComboBox2 = new javax.swing.JComboBox();
         minLevelField = new javax.swing.JFormattedTextField();
@@ -330,8 +347,166 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        mergeGroupsDialog.setPreferredSize(new java.awt.Dimension(436, 335));
+        mergeGroupsDialog.setResizable(false);
+        mergeGroupsDialog.setSize(new java.awt.Dimension(436, 335));
+
+        mergeGroupCategory1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ancestry", "Class", "Archetypes", "Other" }));
+        mergeGroupCategory1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mergeGroupCategory1ActionPerformed(evt);
+            }
+        });
+
+        mergeGroupSelect1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "-" }));
+
+        mergeMinLevelField1.setText("1");
+        mergeMinLevelField1.setToolTipText("Minimum Level");
+
+        mergeMaxLevelField1.setText("20");
+        mergeMaxLevelField1.setToolTipText("Maximum Level");
+
+        label5.setAlignment(java.awt.Label.CENTER);
+        label5.setText("-");
+
+        label6.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        label6.setText("Level Range:");
+
+        mergeGroupCategory2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ancestry", "Class", "Archetypes", "Other" }));
+        mergeGroupCategory2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mergeGroupCategory2ActionPerformed(evt);
+            }
+        });
+
+        mergeGroupSelect2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "-" }));
+
+        mergeMinLevelField2.setText("1");
+        mergeMinLevelField2.setToolTipText("Minimum Level");
+
+        mergeMaxLevelField2.setText("20");
+        mergeMaxLevelField2.setToolTipText("Maximum Level");
+
+        label7.setAlignment(java.awt.Label.CENTER);
+        label7.setText("-");
+
+        label8.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        label8.setText("Level Range:");
+
+        mergeNameField.setText("jTextField1");
+
+        label9.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        label9.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        label9.setText("Group 1:");
+
+        label10.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        label10.setText("Name:");
+
+        label11.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        label11.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        label11.setText("Merged Group:");
+
+        label12.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        label12.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        label12.setText("Group 2:");
+
+        mergeButton.setFont(mergeButton.getFont().deriveFont(mergeButton.getFont().getStyle() | java.awt.Font.BOLD));
+        mergeButton.setText("Merge");
+        mergeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mergeButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout mergeGroupsDialogLayout = new javax.swing.GroupLayout(mergeGroupsDialog.getContentPane());
+        mergeGroupsDialog.getContentPane().setLayout(mergeGroupsDialogLayout);
+        mergeGroupsDialogLayout.setHorizontalGroup(
+            mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                        .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                                .addComponent(mergeGroupCategory1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(mergeGroupSelect1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                                .addComponent(label6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(mergeMinLevelField1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(mergeMaxLevelField1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                                    .addComponent(mergeGroupCategory2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(mergeGroupSelect2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                                    .addComponent(label10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(mergeNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(mergeButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                        .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(label9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                                .addComponent(label8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(mergeMinLevelField2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(label7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(mergeMaxLevelField2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(label11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(label12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))))
+        );
+        mergeGroupsDialogLayout.setVerticalGroup(
+            mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mergeGroupsDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(label9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mergeGroupSelect1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mergeGroupCategory1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(mergeMinLevelField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mergeMaxLevelField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(label12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mergeGroupSelect2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mergeGroupCategory2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(mergeMinLevelField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mergeMaxLevelField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(label8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(label11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mergeGroupsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(mergeNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mergeButton))
+                    .addComponent(label10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(70, Short.MAX_VALUE))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
+        setSize(new java.awt.Dimension(749, 512));
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ancestry", "Class", "Archetypes", "Other" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
@@ -479,7 +654,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))
-                        .addContainerGap(22, Short.MAX_VALUE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2)
                         .addGap(18, 18, 18)
@@ -537,15 +712,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        jComboBox2.removeAllItems();
-        List<String> sortMe = new ArrayList<>();
-        for (String item : dropdowns.get(String.valueOf(jComboBox1.getSelectedItem()))) {
-            sortMe.add(item);
-        }
-        Collections.sort(sortMe);
-        for (String item : sortMe) {
-            jComboBox2.addItem(item);
-        }
+        updatePairedDropdowns(jComboBox1, jComboBox2);
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
@@ -565,58 +732,10 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 boolean hasNone = false;
                 StringBuilder displayMe = new StringBuilder();
                 try {
-                    if (jComboBox1.getSelectedItem().toString().equals("Ancestry") ||
-                        jComboBox1.getSelectedItem().toString().equals("Class") ||
-                        jComboBox1.getSelectedItem().toString().equals("Archetypes")) {
-                        if (jComboBox2.getSelectedItem().toString().contains("(Heritages)")) {
-                            groupKey = jComboBox2.getSelectedItem().toString().replace(" (Heritages)", "_Heritages");
-                        } else {
-                            int min = Integer.parseInt(minLevelField.getText());
-                            int max = Integer.parseInt(maxLevelField.getText());
-                            if (min == max) {
-                                groupKey = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "") + "_Feats_" + min;
-                            } else {
-                                String keyBase = jComboBox2.getSelectedItem().toString().replace(" (Feats)", "") + "_Feats_";
-
-                                //Logic for merging groups here
-                                //Get minimum actual existing level
-                                if (min >= 21) {
-                                    //System.out.println("Minimum level must be no more than 20 (Given as " + min + ").");
-                                    throw new IllegalArgumentException("Minimum level must be no more than 20 (Given as " + min + ").");
-                                }
-                                if (max <= 0) {
-                                    //System.out.println("Maximum level must be no less than 1 (Given as " + max + ").");
-                                    throw new IllegalArgumentException("Maximum level must be no less than 1 (Given as " + max + ").");
-                                }
-                                if (min > max) {
-                                    //System.out.println("Minimum level must be no more than the maximum!");
-                                    throw new IllegalArgumentException("Minimum level must be no less than the maximum!");
-                                }
-                                for (; min < 21 || min < max; min++) {
-                                    if (groups.containsKey(keyBase + min)) {
-                                        break;
-                                    }
-                                }
-                                //Get maximum actual existing level
-                                for (; max > 0 || max > min; max--) {
-                                    if (groups.containsKey(keyBase + max)) {
-                                        break;
-                                    }
-                                }
-                                if (min == max) {
-                                    groupKey = keyBase + min;
-                                } else {
-                                    groupKey = keyBase + min + "-" + max;
-                                    groups.putIfAbsent(groupKey, PF2DataManager.mergeAcrossLevels(groups, keyBase, weights, min, max));
-                                }
-                            }
-                        }
-                    } else {
-                        groupKey = jComboBox2.getSelectedItem().toString();
-                    }
-                    
+                    groupKey = getGroupKey(jComboBox1, jComboBox2, minLevelField, maxLevelField);
                     Group selectFromThisGroup = groups.get(groupKey);
                     System.out.println("GROUP: " + groupKey);
+                    
                     int numToGenerate;
                     try {
                         numToGenerate = Integer.parseInt(numRandomField.getText());
@@ -750,6 +869,36 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private void editMenuMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editMenuMouseEntered
         this.validate();
     }//GEN-LAST:event_editMenuMouseEntered
+
+    private void mergeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeButtonActionPerformed
+        String nameNewGroup = mergeNameField.getText();
+        if (groups.containsKey(nameNewGroup)) {
+            System.out.println("This name is already in use! Try another name.");
+            JOptionPane.showMessageDialog(this, "This name is already in use! Try another name.", "Name in use", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        String groupKey1 = getGroupKey(mergeGroupCategory1, mergeGroupSelect1, mergeMinLevelField1, mergeMaxLevelField1);
+        String groupKey2 = getGroupKey(mergeGroupCategory2, mergeGroupSelect2, mergeMinLevelField2, mergeMaxLevelField2);
+        
+        Group toMergeGroup1 = groups.get(groupKey1);
+        Group toMergeGroup2 = groups.get(groupKey2);
+        
+        Group mergedGroup = toMergeGroup1.merge(toMergeGroup2);
+        groups.put(nameNewGroup, mergedGroup);
+        dropdowns.get("Other").add(nameNewGroup);
+        refreshSelectionDropdown();
+        
+        mergeGroupsDialog.setVisible(false);
+    }//GEN-LAST:event_mergeButtonActionPerformed
+
+    private void mergeGroupCategory2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeGroupCategory2ActionPerformed
+        updatePairedDropdowns(mergeGroupCategory2, mergeGroupSelect2);
+    }//GEN-LAST:event_mergeGroupCategory2ActionPerformed
+
+    private void mergeGroupCategory1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeGroupCategory1ActionPerformed
+        updatePairedDropdowns(mergeGroupCategory1, mergeGroupSelect1);
+    }//GEN-LAST:event_mergeGroupCategory1ActionPerformed
 
     private void promptForPrereq(String req) {
         currentPrereqChecking = req;
@@ -886,12 +1035,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
         }
     }
     
-    //INCOMPLETE
-    private void mergeGroups() {
-        //Actually implement group merging logic
-        //Should have a popup window for selecting two groups
-    }
-    
     /**
      * Reads in a CSV, formatted in the same manner as those in the 'Feats' 
      * folder, to form a custom group.
@@ -937,6 +1080,87 @@ public class PFRandomFrame extends javax.swing.JFrame {
         prereqsMet.add("None");
         prereqsNotMet.clear();
         updatePrereqDisplay();
+    }
+    
+    private String getGroupKey(javax.swing.JComboBox category, javax.swing.JComboBox select, javax.swing.JFormattedTextField minL, javax.swing.JFormattedTextField maxL) {
+        String groupKey;
+        if (category.getSelectedItem().toString().equals("Ancestry") ||
+            category.getSelectedItem().toString().equals("Class") ||
+            category.getSelectedItem().toString().equals("Archetypes")) {
+            if (select.getSelectedItem().toString().contains("(Heritages)")) {
+                groupKey = select.getSelectedItem().toString().replace(" (Heritages)", "_Heritages");
+            } else {
+                int min = Integer.parseInt(minL.getText());
+                int max = Integer.parseInt(maxL.getText());
+                if (min == max) {
+                    groupKey = select.getSelectedItem().toString().replace(" (Feats)", "") + "_Feats_" + min;
+                } else {
+                    String keyBase = select.getSelectedItem().toString().replace(" (Feats)", "") + "_Feats_";
+
+                    //Logic for merging groups here
+                    //Get minimum actual existing level
+                    if (min >= 21) {
+                        //System.out.println("Minimum level must be no more than 20 (Given as " + min + ").");
+                        JOptionPane.showMessageDialog(this, "Minimum level must be no more than 20 (Given as " + min + ").", "Invalid Entry", JOptionPane.ERROR_MESSAGE);
+                        throw new IllegalArgumentException("Minimum level must be no more than 20 (Given as " + min + ").");
+                    }
+                    if (max <= 0) {
+                        //System.out.println("Maximum level must be no less than 1 (Given as " + max + ").");
+                        JOptionPane.showMessageDialog(this, "Maximum level must be no less than 1 (Given as " + max + ").", "Invalid Entry", JOptionPane.ERROR_MESSAGE);
+                        throw new IllegalArgumentException("Maximum level must be no less than 1 (Given as " + max + ").");
+                    }
+                    if (min > max) {
+                        //System.out.println("Minimum level must be no more than the maximum.");
+                        JOptionPane.showMessageDialog(this, "Minimum level must be no more than the maximum.", "Invalid Entry", JOptionPane.ERROR_MESSAGE);
+                        throw new IllegalArgumentException("Minimum level must be no less than the maximum.");
+                    }
+                    for (; min < 21 || min < max; min++) {
+                        if (groups.containsKey(keyBase + min)) {
+                            break;
+                        }
+                    }
+                    //Get maximum actual existing level
+                    for (; max > 0 || max > min; max--) {
+                        if (groups.containsKey(keyBase + max)) {
+                            break;
+                        }
+                    }
+                    if (min == max) {
+                        groupKey = keyBase + min;
+                    } else {
+                        groupKey = keyBase + min + "-" + max;
+                        groups.putIfAbsent(groupKey, PF2DataManager.mergeAcrossLevels(groups, keyBase, weights, min, max));
+                    }
+                }
+            }
+        } else {
+            groupKey = select.getSelectedItem().toString();
+        }
+        return groupKey;
+    }
+    
+    private void updatePairedDropdowns(javax.swing.JComboBox category, javax.swing.JComboBox select) {
+        select.removeAllItems();
+        List<String> sortMe = new ArrayList<>();
+        for (String item : dropdowns.get(String.valueOf(category.getSelectedItem()))) {
+            sortMe.add(item);
+        }
+        Collections.sort(sortMe);
+        for (String item : sortMe) {
+            select.addItem(item);
+        }
+    }
+    
+    private void refreshSelectionDropdown() {
+        jComboBox2.removeAllItems();
+        List<String> sortMe = new ArrayList<>();
+        for (String item : dropdowns.get(String.valueOf(jComboBox1.getSelectedItem()))) {
+            sortMe.add(item);
+        }
+        Collections.sort(sortMe);
+        for (String item : sortMe) {
+            jComboBox2.addItem(item);
+        }
     }
     
     /**
@@ -999,10 +1223,29 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private java.awt.Label label1;
+    private java.awt.Label label10;
+    private java.awt.Label label11;
+    private java.awt.Label label12;
     private java.awt.Label label2;
     private java.awt.Label label3;
     private java.awt.Label label4;
+    private java.awt.Label label5;
+    private java.awt.Label label6;
+    private java.awt.Label label7;
+    private java.awt.Label label8;
+    private java.awt.Label label9;
     private javax.swing.JFormattedTextField maxLevelField;
+    private javax.swing.JButton mergeButton;
+    private javax.swing.JComboBox mergeGroupCategory1;
+    private javax.swing.JComboBox mergeGroupCategory2;
+    private javax.swing.JComboBox mergeGroupSelect1;
+    private javax.swing.JComboBox mergeGroupSelect2;
+    private javax.swing.JDialog mergeGroupsDialog;
+    private javax.swing.JFormattedTextField mergeMaxLevelField1;
+    private javax.swing.JFormattedTextField mergeMaxLevelField2;
+    private javax.swing.JFormattedTextField mergeMinLevelField1;
+    private javax.swing.JFormattedTextField mergeMinLevelField2;
+    private javax.swing.JTextField mergeNameField;
     private javax.swing.JFormattedTextField minLevelField;
     private javax.swing.JButton noButton;
     private javax.swing.JFormattedTextField numRandomField;
