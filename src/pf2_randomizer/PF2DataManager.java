@@ -19,12 +19,16 @@ import java.util.stream.Stream;
  */
 public class PF2DataManager {
     
-    public static final String[] SUPERCATEGORIES = {"Ancestry", "Class", "Archetypes", "Other"};
+    public static final String[] SUPERCATEGORIES = {"Ancestry", "Class", "Subclass", "Archetype", "Other"};
     
     //If I feel ambitious enough to have this check AoN for updates, these will instead generate from functions.
     public static final String[] CLASSES = {"Alchemist", "Barbarian", "Bard", "Champion", "Cleric", 
         "Druid", "Fighter", "Gunslinger", "Inventor", "Investigator", "Magus", "Monk", "Oracle", 
         "Ranger", "Rogue", "Sorcerer", "Summoner", "Swashbuckler", "Witch", "Wizard"};
+    public static final String[] SUBCLASSES = {"Alchemist Fields", "Barbarian Instincts", "Bard Muses", "Champion Causes", "Cleric Doctrines", 
+        "Druid Orders", "Gunslinger Ways", "Inventor Innovations", "Investigator Methodologies", "Magus Hybrid Studies", "Oracle Mysteries", 
+        "Ranger Hunter's Edges", "Rogue Rackets", "Sorcerer Bloodlines", "Summoner Eidolons", "Swashbuckler Styles", "Witch Patron Themes", 
+        "Wizard Arcane Theses", "Wizard Arcane Schools"};
     public static final String[] ANCESTRIES = {"Dwarf", "Elf", "Gnome", "Goblin", "Halfling", 
         "Human", "Azarketi", "Catfolk", "Fetchling", "Gnoll", "Grippli", "Hobgoblin", "Kitsune", 
         "Kobold", "Leshy", "Lizardfolk", "Orc", "Ratfolk", "Tengu", "Anadi", "Android", 
@@ -46,7 +50,7 @@ public class PF2DataManager {
         File[] directoryListing = dir.listFiles();
         HashMap<String, Group> genGroups = new HashMap<>();
         for (File child : directoryListing) {
-            genGroups.put(child.getName().split(".csv")[0], readInOneCSV(child, weights));
+            genGroups.put(child.getName().replace("#", " ").split(".csv")[0], readInOneCSV(child, weights));
         }
 
         return genGroups;

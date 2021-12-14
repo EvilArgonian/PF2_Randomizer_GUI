@@ -1,13 +1,14 @@
 MET: None
-MET: Arcane Cascade
-MET: "Arcane Cascade
 MET: Spellstrike
 MET: sparkling targe hybrid study
-MET: Pack Hunter
+MET: Arcane Cascade
+MET: focus pool
+MET: conflux spells
+NOT MET: starlit span hybrid study
+NOT MET: twisting tree hybrid study
+NOT MET: inexorable iron hybrid study
+NOT MET: Conflux Focus
+NOT MET: Spell Parry
+NOT MET: laughing shadow hybrid study
 NOT MET: Raise a Tome
-NOT MET: "laughing shadow hybrid study
-NOT MET: Gnoll Weapon Practicality
-NOT MET: Witch Gnoll
-NOT MET: Gnoll Weapon Familiarity
-NOT MET: Intimidation
-NOT MET: Sweetbreath Gnoll
+NOT MET: dimensional assault focus spell

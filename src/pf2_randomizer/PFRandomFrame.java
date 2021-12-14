@@ -8,7 +8,6 @@ package pf2_randomizer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,13 +18,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import javax.imageio.ImageIO;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 /**
  *
@@ -43,26 +39,32 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private String currentPrereqChecking = null;
     private final int CHECK_LIMIT = 300; //Checks allowed before giving up on generation
     
-    private ArrayList<JCheckBox> checkListMet;
-    private ArrayList<JCheckBox> checkListNotMet;
-    
     private int[] weights = new int[]{3, 2, 1, 0};
 
     /**
      * Creates new form PFRandomFrame
      */
     public PFRandomFrame(String str) {
-        //super(str);
+        super(str);
         //Load all data
         groups = PF2DataManager.readInGroupCSVs(weights);
         dropdowns = new HashMap<>();
         //Establish Supercategories for first dropdown
         for (String supercategory : PF2DataManager.SUPERCATEGORIES) {
+            if (supercategory.equals("Archetype")) {
+                /*
+                Skip this for now, since no data is organized for the CSV.
+                All functions exist that could handle archetypes, but the 
+                process of actually formatting the data from AoN is lengthy.
+                */
+                continue;
+            }
             dropdowns.put(supercategory, new ArrayList<>());
         }
         List<String> ancCheck = Arrays.asList(PF2DataManager.ANCESTRIES);
         List<String> classCheck = Arrays.asList(PF2DataManager.CLASSES);
         List<String> versCheck = Arrays.asList(PF2DataManager.VERSATILE_HERITAGES);
+        List<String> subclassCheck = Arrays.asList(PF2DataManager.SUBCLASSES);
         List<String> keysSeen = new ArrayList<>();
         for (String key : groups.keySet()) {
             if (key.split("_").length > 1) {
@@ -77,13 +79,19 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 dropdowns.get("Ancestry").add(key + " (Heritages)");
                 dropdowns.get("Ancestry").add(key + " (Feats)");
                 System.out.println("RECOGNIZED ANCESTRY DATA FOR: " + key);
-            } else if (classCheck.contains(key)) {
-                dropdowns.get("Class").add(key); 
-                System.out.println("RECOGNIZED CLASS DATA FOR: " + key);
             } else if (versCheck.contains(key)) {
                 dropdowns.get("Ancestry").add(key + " (Feats)"); //There's an argument for these to get their own supercategory, but this will do.
                 System.out.println("RECOGNIZED VERSATILE HERITAGE DATA FOR: " + key);
-            } else if (key.equals("Ancestries") || key.equals("Backgrounds") || key.equals("Classes") || key.equals("Dedications")) {
+            } else if (classCheck.contains(key)) {
+                dropdowns.get("Class").add(key); 
+                System.out.println("RECOGNIZED CLASS DATA FOR: " + key);
+            } else if (subclassCheck.contains(key)) {
+                dropdowns.get("Subclass").add(key); 
+                System.out.println("RECOGNIZED SUBCLASS DATA FOR: " + key);
+            } else if (key.equals("Ancestries") 
+                    || key.equals("Backgrounds") 
+                    || key.equals("Classes") 
+                    || key.equals("Dedications")) {
                 dropdowns.get("Other").add(key); 
                 System.out.println("RECOGNIZED MISC. DATA FOR: " + key);
                 /*Note that ancestries and classes are in this list to generate an 
@@ -239,7 +247,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
         label3 = new java.awt.Label();
         generateButton = new javax.swing.JButton();
         label4 = new java.awt.Label();
-        imagePanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         resultsDisplay = new javax.swing.JTextArea();
         noButton = new javax.swing.JButton();
@@ -374,9 +381,9 @@ public class PFRandomFrame extends javax.swing.JFrame {
         );
 
         mergeGroupsDialog.setTitle("Merge Groups");
-        mergeGroupsDialog.setPreferredSize(new java.awt.Dimension(436, 300));
+        mergeGroupsDialog.setPreferredSize(new java.awt.Dimension(436, 325));
         mergeGroupsDialog.setResizable(false);
-        mergeGroupsDialog.setSize(new java.awt.Dimension(436, 300));
+        mergeGroupsDialog.setSize(new java.awt.Dimension(436, 325));
         mergeGroupsDialog.setType(java.awt.Window.Type.POPUP);
 
         mergeGroupCategory1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ancestry", "Class", "Archetypes", "Other" }));
@@ -527,7 +534,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
                         .addComponent(mergeNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(mergeButton))
                     .addComponent(label10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(72, Short.MAX_VALUE))
         );
 
         clearSelectedDialog.setTitle("Clear Prerequisites");
@@ -602,7 +609,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
         setResizable(false);
         setSize(new java.awt.Dimension(749, 512));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ancestry", "Class", "Archetypes", "Other" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ancestry", "Class", "Subclass", "Other" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
@@ -638,17 +645,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
 
         label4.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         label4.setText("Level Range:");
-
-        javax.swing.GroupLayout imagePanelLayout = new javax.swing.GroupLayout(imagePanel);
-        imagePanel.setLayout(imagePanelLayout);
-        imagePanelLayout.setHorizontalGroup(
-            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        imagePanelLayout.setVerticalGroup(
-            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 255, Short.MAX_VALUE)
-        );
 
         resultsDisplay.setEditable(false);
         resultsDisplay.setColumns(20);
@@ -742,20 +738,18 @@ public class PFRandomFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(imagePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2)
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(yesButton, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)
                             .addComponent(noButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(22, 22, 22))))
+                        .addGap(22, 22, 22))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -777,24 +771,23 @@ public class PFRandomFrame extends javax.swing.JFrame {
                                     .addComponent(numRandomField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(label3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(label2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
+                            .addComponent(label2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                            .addComponent(jScrollPane4)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(yesButton)
+                                .addComponent(yesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(noButton))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(imagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3)
-                    .addComponent(jScrollPane4))
+                                .addComponent(noButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane2))))
                 .addContainerGap())
         );
 
@@ -803,17 +796,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
 
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
         enableAppropriateFields();
-        try {
-            if (jComboBox1.getSelectedItem().toString().equals("Class")) {
-                //Do thing for pictures
-                BufferedImage myPicture = ImageIO.read(new File("Images/" + jComboBox2.getSelectedItem().toString()));
-                //imagePanel.add(myPicture);
-                //Make custom JPanel and override paint?
-            }
-            //Any other pictures besides classes? Probably not.
-        } catch (Exception ex) {
-            //Do nothing; pictures aren't important enough to warn the user.
-        }
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
@@ -857,7 +839,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
                         prereqsInvalid = true;
                         selected = null;
                         while (prereqsInvalid || selection.contains(selected)) {
-                            System.out.println("Weights used: " + Arrays.toString(selectFromThisGroup.getWeights()));
                             selected = selectFromThisGroup.random();
                             if (selected == null) {
                                 System.out.println("Group had no feats to select from!");
@@ -1378,7 +1359,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JButton generateButton;
-    private javax.swing.JPanel imagePanel;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;

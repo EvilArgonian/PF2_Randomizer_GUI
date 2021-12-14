@@ -1,2 +1,0 @@
-Fix prerequisites in Ancestry feats
-Class subclasses
