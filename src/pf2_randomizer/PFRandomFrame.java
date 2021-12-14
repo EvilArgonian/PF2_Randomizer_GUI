@@ -8,6 +8,7 @@ package pf2_randomizer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,9 +19,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import javax.imageio.ImageIO;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  *
@@ -29,6 +34,7 @@ import javax.swing.JOptionPane;
 public class PFRandomFrame extends javax.swing.JFrame {
     
     //EVERYTHING STILL NEEDS TO BE MADE THREAD SAFE (?)
+    //Or maybe not? Am I even using multiple threads? Starting to think 'not really'.
     private HashMap<String, Group> groups;
     private HashMap<String, List<String>> dropdowns;
     
@@ -36,6 +42,9 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private List<String> prereqsNotMet;
     private String currentPrereqChecking = null;
     private final int CHECK_LIMIT = 300; //Checks allowed before giving up on generation
+    
+    private ArrayList<JCheckBox> checkListMet;
+    private ArrayList<JCheckBox> checkListNotMet;
     
     private int[] weights = new int[]{3, 2, 1, 0};
 
@@ -90,9 +99,10 @@ public class PFRandomFrame extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         configureWeightsDialog.setLocationRelativeTo(null);
         mergeGroupsDialog.setLocationRelativeTo(null);
+        clearSelectedDialog.setLocationRelativeTo(null);
         
         //Establish Menus
-        //File Menu: Save and Open
+        //File Menu: Save and Load
         fileMenu.setMnemonic('F');
         JMenuItem saveItem = new JMenuItem("Save");
         fileMenu.add(saveItem);
@@ -103,16 +113,16 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 saveToFile();
             }
         });
-        JMenuItem openItem = new JMenuItem("Open");
-        openItem.setMnemonic('O');
-        fileMenu.add(openItem);
-        openItem.addActionListener(new ActionListener() {
+        JMenuItem loadItem = new JMenuItem("Load");
+        loadItem.setMnemonic('L');
+        fileMenu.add(loadItem);
+        loadItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loadFromFile();
             }
         });
-        //Edit Menu: Merge, Configure Weights, and Clear Prerequisites
+        //Edit Menu: Merge, Configure Weights, and Clear Prerequisites Menu
         editMenu.setMnemonic('E');
         JMenuItem mergeItem = new JMenuItem("Merge");
         mergeItem.setMnemonic('M');
@@ -138,16 +148,26 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 configureWeightsDialog.setVisible(true);
             }
         });
-        JMenuItem clearItem = new JMenuItem("Clear Prerequisites");
+        //Clear Prerequisites Menu
+        JMenu clearItem = new JMenu("Clear Prerequisites");
         clearItem.setMnemonic('C');
         editMenu.add(clearItem);
-        clearItem.addActionListener(new ActionListener() {
+        JMenuItem clearAllItem = new JMenuItem("Clear All");
+        JMenuItem clearSelectItem = new JMenuItem("Select");
+        clearItem.add(clearAllItem);
+        clearItem.add(clearSelectItem);
+        clearAllItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                clearPrereqs();
+                clearAllPrereqs();
             }
         });
-        
+        clearSelectItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clearSelectPrereqs();
+            }
+        });
         //Initial setup of dropdowns
         refreshSelectionDropdown();
         
@@ -204,6 +224,12 @@ public class PFRandomFrame extends javax.swing.JFrame {
         label11 = new java.awt.Label();
         label12 = new java.awt.Label();
         mergeButton = new javax.swing.JButton();
+        clearSelectedDialog = new javax.swing.JDialog();
+        jLabel6 = new javax.swing.JLabel();
+        clearSelectedButton = new javax.swing.JButton();
+        metNotMetDropdown = new javax.swing.JComboBox();
+        prereqsSelectDropdown = new javax.swing.JComboBox();
+        doneClearSelectButton = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox();
         jComboBox2 = new javax.swing.JComboBox();
         minLevelField = new javax.swing.JFormattedTextField();
@@ -213,7 +239,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
         label3 = new java.awt.Label();
         generateButton = new javax.swing.JButton();
         label4 = new java.awt.Label();
-        jPanel1 = new javax.swing.JPanel();
+        imagePanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         resultsDisplay = new javax.swing.JTextArea();
         noButton = new javax.swing.JButton();
@@ -347,9 +373,11 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        mergeGroupsDialog.setPreferredSize(new java.awt.Dimension(436, 335));
+        mergeGroupsDialog.setTitle("Merge Groups");
+        mergeGroupsDialog.setPreferredSize(new java.awt.Dimension(436, 300));
         mergeGroupsDialog.setResizable(false);
-        mergeGroupsDialog.setSize(new java.awt.Dimension(436, 335));
+        mergeGroupsDialog.setSize(new java.awt.Dimension(436, 300));
+        mergeGroupsDialog.setType(java.awt.Window.Type.POPUP);
 
         mergeGroupCategory1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ancestry", "Class", "Archetypes", "Other" }));
         mergeGroupCategory1.addActionListener(new java.awt.event.ActionListener() {
@@ -392,8 +420,6 @@ public class PFRandomFrame extends javax.swing.JFrame {
 
         label8.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         label8.setText("Level Range:");
-
-        mergeNameField.setText("jTextField1");
 
         label9.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         label9.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
@@ -501,7 +527,75 @@ public class PFRandomFrame extends javax.swing.JFrame {
                         .addComponent(mergeNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(mergeButton))
                     .addComponent(label10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(70, Short.MAX_VALUE))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
+
+        clearSelectedDialog.setTitle("Clear Prerequisites");
+        clearSelectedDialog.setPreferredSize(new java.awt.Dimension(500, 100));
+        clearSelectedDialog.setResizable(false);
+        clearSelectedDialog.setSize(new java.awt.Dimension(500, 100));
+        clearSelectedDialog.setType(java.awt.Window.Type.POPUP);
+
+        jLabel6.setText("Select prerequisites to clear from either category.");
+        jLabel6.setToolTipText("");
+
+        clearSelectedButton.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        clearSelectedButton.setText("Clear");
+        clearSelectedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearSelectedButtonActionPerformed(evt);
+            }
+        });
+
+        metNotMetDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Prerequisites Met", "Prerequisites Not Met" }));
+        metNotMetDropdown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                metNotMetDropdownActionPerformed(evt);
+            }
+        });
+
+        prereqsSelectDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "-" }));
+
+        doneClearSelectButton.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        doneClearSelectButton.setText("Done");
+        doneClearSelectButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doneClearSelectButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout clearSelectedDialogLayout = new javax.swing.GroupLayout(clearSelectedDialog.getContentPane());
+        clearSelectedDialog.getContentPane().setLayout(clearSelectedDialogLayout);
+        clearSelectedDialogLayout.setHorizontalGroup(
+            clearSelectedDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(clearSelectedDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(clearSelectedDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(clearSelectedDialogLayout.createSequentialGroup()
+                        .addComponent(metNotMetDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel6))
+                    .addGroup(clearSelectedDialogLayout.createSequentialGroup()
+                        .addComponent(prereqsSelectDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(clearSelectedButton, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(doneClearSelectButton)))
+                .addContainerGap(33, Short.MAX_VALUE))
+        );
+        clearSelectedDialogLayout.setVerticalGroup(
+            clearSelectedDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(clearSelectedDialogLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(clearSelectedDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(metNotMetDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(clearSelectedDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(prereqsSelectDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(doneClearSelectButton)
+                    .addComponent(clearSelectedButton))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -545,14 +639,14 @@ public class PFRandomFrame extends javax.swing.JFrame {
         label4.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         label4.setText("Level Range:");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout imagePanelLayout = new javax.swing.GroupLayout(imagePanel);
+        imagePanel.setLayout(imagePanelLayout);
+        imagePanelLayout.setHorizontalGroup(
+            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        imagePanelLayout.setVerticalGroup(
+            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 255, Short.MAX_VALUE)
         );
 
@@ -652,7 +746,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(imagePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
@@ -698,7 +792,7 @@ public class PFRandomFrame extends javax.swing.JFrame {
                                 .addComponent(noButton))
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(imagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane3)
                     .addComponent(jScrollPane4))
                 .addContainerGap())
@@ -709,6 +803,17 @@ public class PFRandomFrame extends javax.swing.JFrame {
 
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
         enableAppropriateFields();
+        try {
+            if (jComboBox1.getSelectedItem().toString().equals("Class")) {
+                //Do thing for pictures
+                BufferedImage myPicture = ImageIO.read(new File("Images/" + jComboBox2.getSelectedItem().toString()));
+                //imagePanel.add(myPicture);
+                //Make custom JPanel and override paint?
+            }
+            //Any other pictures besides classes? Probably not.
+        } catch (Exception ex) {
+            //Do nothing; pictures aren't important enough to warn the user.
+        }
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
@@ -900,6 +1005,47 @@ public class PFRandomFrame extends javax.swing.JFrame {
         updatePairedDropdowns(mergeGroupCategory1, mergeGroupSelect1);
     }//GEN-LAST:event_mergeGroupCategory1ActionPerformed
 
+    private void doneClearSelectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doneClearSelectButtonActionPerformed
+        clearSelectedDialog.setVisible(false);
+    }//GEN-LAST:event_doneClearSelectButtonActionPerformed
+
+    private void metNotMetDropdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_metNotMetDropdownActionPerformed
+        prereqsSelectDropdown.removeAllItems();
+        List<String> sortMe = new ArrayList<>();
+        if (String.valueOf(metNotMetDropdown.getSelectedItem()).equals("Prerequisites Met")) {
+            for (String item : prereqsMet) {
+                sortMe.add(item);
+            }
+        } else {
+            for (String item : prereqsNotMet) {
+                sortMe.add(item);
+            }
+        }
+        sortMe.remove("None");
+        Collections.sort(sortMe);
+        for (String item : sortMe) {
+            prereqsSelectDropdown.addItem(item);
+        }
+    }//GEN-LAST:event_metNotMetDropdownActionPerformed
+
+    private void clearSelectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearSelectedButtonActionPerformed
+        clearSelectedButton.setEnabled(false);
+        boolean worked = false;
+        if (String.valueOf(metNotMetDropdown.getSelectedItem()).equals("Prerequisites Met")) {
+            worked = prereqsMet.remove(String.valueOf(prereqsSelectDropdown.getSelectedItem()));
+        } else {
+            worked = prereqsNotMet.remove(String.valueOf(prereqsSelectDropdown.getSelectedItem()));
+        }
+        if (worked) {
+            prereqsSelectDropdown.removeItem(prereqsSelectDropdown.getSelectedItem());
+        } else {
+            JOptionPane.showMessageDialog(this, "Couldn't remove prerequisite!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        updatePrereqDisplay();
+        clearSelectedButton.setEnabled(true);
+    }//GEN-LAST:event_clearSelectedButtonActionPerformed
+
     private void promptForPrereq(String req) {
         currentPrereqChecking = req;
         prereqPrompt.setText("Do you meet the prereq: \n" + req);
@@ -1075,11 +1221,31 @@ public class PFRandomFrame extends javax.swing.JFrame {
     /**
      * Clears the stored prerequisite memory.
      */
-    private void clearPrereqs() {
+    private void clearAllPrereqs() {
         prereqsMet.clear();
         prereqsMet.add("None");
         prereqsNotMet.clear();
         updatePrereqDisplay();
+    }
+    
+    /**
+     * Opens dialogue for clearing selected prerequisites.
+     */
+    private void clearSelectPrereqs() {
+        metNotMetDropdown.setSelectedIndex(0);
+        prereqsSelectDropdown.removeAllItems();
+        List<String> sortMe = new ArrayList<>();
+        for (String item : prereqsMet) {
+            sortMe.add(item);
+        }
+        sortMe.remove("None");
+        Collections.sort(sortMe);
+        for (String item : sortMe) {
+            prereqsSelectDropdown.addItem(item);
+        }
+        
+        clearSelectedButton.setEnabled(true);
+        clearSelectedDialog.setVisible(true);
     }
     
     private String getGroupKey(javax.swing.JComboBox category, javax.swing.JComboBox select, javax.swing.JFormattedTextField minL, javax.swing.JFormattedTextField maxL) {
@@ -1199,6 +1365,8 @@ public class PFRandomFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton clearSelectedButton;
+    private javax.swing.JDialog clearSelectedDialog;
     private javax.swing.JButton configCancelButton;
     private javax.swing.JFormattedTextField configCommon;
     private javax.swing.JFormattedTextField configRare;
@@ -1206,9 +1374,11 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField configUncommon;
     private javax.swing.JFormattedTextField configUnique;
     private javax.swing.JDialog configureWeightsDialog;
+    private javax.swing.JButton doneClearSelectButton;
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JButton generateButton;
+    private javax.swing.JPanel imagePanel;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;
@@ -1216,8 +1386,8 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1246,12 +1416,14 @@ public class PFRandomFrame extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField mergeMinLevelField1;
     private javax.swing.JFormattedTextField mergeMinLevelField2;
     private javax.swing.JTextField mergeNameField;
+    private javax.swing.JComboBox metNotMetDropdown;
     private javax.swing.JFormattedTextField minLevelField;
     private javax.swing.JButton noButton;
     private javax.swing.JFormattedTextField numRandomField;
     private javax.swing.JTextPane prereqPrompt;
     private javax.swing.JTextArea prereqsMetDisplay;
     private javax.swing.JTextArea prereqsNotMetDisplay;
+    private javax.swing.JComboBox prereqsSelectDropdown;
     private javax.swing.JTextArea resultsDisplay;
     private javax.swing.JButton yesButton;
     // End of variables declaration//GEN-END:variables
