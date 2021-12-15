@@ -1049,10 +1049,10 @@ public class PFRandomFrame extends javax.swing.JFrame {
      * Determines what fields should be active based on the contents of already selected fields.
      */
     private void enableAppropriateFields() {
-        if (String.valueOf(jComboBox2.getSelectedItem()).contains("Heritages") ||
-             (String.valueOf(jComboBox1.getSelectedItem()).equals("Other") &&
-             !String.valueOf(jComboBox2.getSelectedItem()).equals("Dedications")
-            )) { //Add other non-leveled items to this check!
+        if (String.valueOf(jComboBox2.getSelectedItem()).contains("Heritages") 
+                || (String.valueOf(jComboBox1.getSelectedItem()).equals("Other") && !String.valueOf(jComboBox2.getSelectedItem()).equals("Dedications"))
+                || String.valueOf(jComboBox1.getSelectedItem()).equals("Subclass")
+                ) { //Add other non-leveled items to this check!
             minLevelField.setEnabled(false);
             maxLevelField.setEnabled(false);
         } else {
